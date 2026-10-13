@@ -1,0 +1,23 @@
+{
+  "name": "backend-test",
+  "version": "1.0.0",
+  "description": "backend server for coursework",
+  "homepage": "https://github.com/daniialnazarii/backend-M01027489#readme",
+  "bugs": {
+    "url": "https://github.com/daniialnazarii/backend-M01027489/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daniialnazarii/backend-M01027489.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "hello-world.js",
+  "scripts": {
+    "test": "node hello-world.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}
