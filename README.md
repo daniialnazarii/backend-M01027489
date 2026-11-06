@@ -14,8 +14,10 @@ Checkout saves the customer's name, telephone number, and an array of lesson
 IDs to the `orders` collection, then updates each ordered lesson's `spaces`
 count in MongoDB.
 
-The backend exposes `GET /` to list lessons, `POST /orders` to save an order,
-and `PUT /lessons/:_id` to update a lesson's available spaces.
+The backend exposes `GET /lessons` to list lessons, `POST /orders` to save an
+order, and `PUT /lessons/:_id` to update lesson fields. Requests are logged in
+the server console. Lesson images in the frontend `images` folder are also
+served at `/images/<filename>`.
 
 MongoDB credentials belong in `sensetive/config.env` as a complete connection
 URI:
