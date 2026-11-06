@@ -1,66 +1,93 @@
-var express = require("express"); // Requires the Express module
-var cors = require("cors"); // Requires the CORS module
-// Calls the express function to start a new Express application
-var app = express();
-var cors=require("cors");
-app.use(cors());
-app.use(function(request, response) { // middleware
-    console.log("In comes a request to: " + request.url);
-    response.json(lessons);
+const path = require("node:path");
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config({
+    path: path.join(__dirname, "sensetive", "config.env")
 });
-let lessons = [
-            {
-							id: 'computer-science',
-							subject: 'Computer Science',
-							location: 'Hendon',
-							price: '17,000 ',
-                            tutor: 'John Doe',
-							image: 'images/computer-science.jpg',
-                            alt: 'A student learning computer science at a laptop',
-                            spaces: 5
-						},
-						{
-							id: 'art',
-							subject: 'Art',
-							location: 'Wembley',
-							price: '11,000',
-                            tutor: 'Akira Smith',
-							image: 'images/art.jpg',
-                            alt: 'Colourful art supplies ready for a creative lesson',
-                            spaces: 12
-						},
-						{
-							id: 'engineering',
-							subject: 'Engineering',
-							location: 'Harrow',
-							price: '20,000',
-                            tutor: 'Emily Johnson',
-							image: 'images/engineering.jpg',
-                            alt: 'A student building a small engineering project',
-                            spaces: 10
-						},
-						{
-							id: 'business',
-							subject: 'Business',
-							location: 'Edgware',
-							price: '17,000',
-                            tutor: 'Michael Brown',
-							image: 'images/business.jpg',
-                            alt: 'Students collaborating around a table during a business lesson',
-                            spaces: 7
-						},
-						{
-							id: 'cybersecurity',
-							subject: 'Cybersecurity',
-							location: 'Finchley',
-							price: '22,000',
-                            tutor: 'Sarah Davis',
-							image: 'images/cybersecurity.jpg',
-                            alt: 'A secure digital network represented on a computer screen',
-                            spaces: 8
-						}
-]
+const { MongoClient, ObjectId } = require("mongodb");
+const uri = process.env.MONGODB_URI;
 
-app.listen(3002, function() {
-    console.log("App started on port 3002");
+if (!uri) {
+    throw new Error("MONGODB_URI is missing from sensetive/config.env");
+}
+
+const client = new MongoClient(uri);
+const db = client.db("coursework");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.get("/", async function(request, response) {
+    console.log("In comes a request to: " + request.url);
+    try {
+        const lessons = await db.collection("lessons").find({}).toArray();
+        response.json(lessons);
+    } catch (error) {
+        console.error("Failed to read lessons from MongoDB:", error.name);
+        response.status(500).json({ error: "Unable to load lessons" });
+    }
+});
+
+app.post("/orders", async function(request, response) {
+    const order = request.body;
+    if (
+        !order ||
+        typeof order.name !== "string" ||
+        typeof order.telephone !== "string" ||
+        !Array.isArray(order.lessonSlots) ||
+        order.lessonSlots.length === 0 ||
+        !order.lessonSlots.every(function(id) {
+            return typeof id === "string";
+        })
+    ) {
+        return response.status(400).json({ error: "Invalid order details" });
+    }
+
+    try {
+        const result = await db.collection("orders").insertOne(order);
+        response.status(201).json(result);
+    } catch (error) {
+        console.error("Failed to save order:", error.name);
+        response.status(500).json({ error: "Unable to save order" });
+    }
+});
+
+app.put("/lessons/:_id", async function(request, response) {
+    const lessonId = request.params._id;
+    const spaces = request.body && request.body.spaces;
+
+    if (!ObjectId.isValid(lessonId)) {
+        return response.status(400).json({ error: "Invalid lesson ID" });
+    }
+    if (!Number.isInteger(spaces) || spaces < 0) {
+        return response.status(400).json({ error: "Invalid lesson spaces" });
+    }
+
+    try {
+        const result = await db.collection("lessons").updateOne(
+            { _id: new ObjectId(lessonId) },
+            { $set: { spaces: spaces } }
+        );
+        if (result.matchedCount === 0) {
+            return response.status(404).json({ error: "Lesson not found" });
+        }
+        response.json(result);
+    } catch (error) {
+        console.error("Failed to update lesson:", error.name);
+        response.status(500).json({ error: "Unable to update lesson" });
+    }
+});
+
+async function startServer() {
+    await client.connect();
+    console.log("Successfully connected to MongoDB");
+    app.listen(3002, function() {
+        console.log("App started on port 3002");
+    });
+}
+
+startServer().catch(function(error) {
+    console.error("MongoDB connection failed:", error.name);
+    process.exitCode = 1;
 });
