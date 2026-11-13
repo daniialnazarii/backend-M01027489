@@ -14,6 +14,8 @@ if (!uri) {
 const client = new MongoClient(uri);
 const db = client.db("coursework");
 
+const port = process.env.PORT || 3000;
+
 const app = express();
 const imageDirectory = path.join(__dirname, "..", "..", "frontend-fullstack", "images");
 
@@ -113,9 +115,10 @@ app.put("/lessons/:_id", async function(request, response) {
 async function startServer() {
     await client.connect();
     console.log("Successfully connected to MongoDB");
-    app.listen(3002, function() {
-        console.log("App started on port 3002");
-    });
+    app.listen(port, function() {
+    console.log("App started on port " + port);
+});
+
 }
 
 startServer().catch(function(error) {
