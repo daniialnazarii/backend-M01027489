@@ -17,7 +17,7 @@ const db = client.db("coursework");
 const port = process.env.PORT || 3000;
 
 const app = express();
-const imageDirectory = path.join(__dirname, "..", "..", "frontend-fullstack", "images");
+const imageDirectory = path.join(__dirname, "images");
 
 app.use(function(request, response, next) {
     console.log(`${request.method} ${request.originalUrl}`);
