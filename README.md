@@ -10,14 +10,17 @@ npm start
 ```
 
 The server reads lessons from the `coursework` database's `lessons` collection.
-Checkout saves the customer's name, telephone number, and an array of lesson
-IDs to the `orders` collection, then updates each ordered lesson's `spaces`
-count in MongoDB.
+Checkout saves the customer's name, telephone number, an array of lesson IDs,
+and the total number of ordered spaces to the `orders` collection, then updates
+each ordered lesson's `spaces` count in MongoDB.
 
-The backend exposes `GET /lessons` to list lessons, `POST /orders` to save an
-order, and `PUT /lessons/:_id` to update lesson fields. Requests are logged in
-the server console. Lesson images in the frontend `images` folder are also
-served at `/images/<filename>`.
+The backend exposes `GET /lessons` to list lessons,
+`GET /lessons/search?q=<term>` to search across lesson titles/subjects,
+locations, prices, availability, tutors, and teacher names, `POST /orders` to
+save an order, and `PUT /lessons/:_id` to update lesson fields. Search is
+case-insensitive and matches a partial term in any of those fields; for example,
+`/lessons/search?q=art`. Requests are logged in the server console. Lesson
+images in the frontend `images` folder are also served at `/images/<filename>`.
 
 MongoDB credentials belong in `sensetive/config.env` as a complete connection
 URI:

@@ -44,6 +44,71 @@ app.get("/lessons", async function(request, response) {
     }
 });
 
+function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+app.get("/lessons/search", async function(request, response) {
+    const searchTerm = request.query.q;
+    if (
+        Object.keys(request.query).length !== 1 ||
+        typeof searchTerm !== "string" ||
+        searchTerm.trim() === ""
+    ) {
+        return response.status(400).json({ error: "Provide one non-empty q search term" });
+    }
+
+    const searchPattern = escapeRegExp(searchTerm.trim());
+    const searchableFields = [
+        "title",
+        "subject",
+        "location",
+        "price",
+        "spaces",
+        "availability",
+        "tutor",
+        "tutorName",
+        "tutorFirstName",
+        "tutorLastName",
+        "tutor.firstName",
+        "tutor.lastName",
+        "teacher",
+        "teacherName",
+        "teacherFirstName",
+        "teacherLastName",
+        "teacher.firstName",
+        "teacher.lastName"
+    ];
+    const filter = {
+        $or: searchableFields.map(function(field) {
+            return {
+                $expr: {
+                    $regexMatch: {
+                        input: {
+                            $convert: {
+                                input: `$${field}`,
+                                to: "string",
+                                onError: "",
+                                onNull: ""
+                            }
+                        },
+                        regex: searchPattern,
+                        options: "i"
+                    }
+                }
+            };
+        })
+    };
+
+    try {
+        const lessons = await db.collection("lessons").find(filter).toArray();
+        response.json(lessons);
+    } catch (error) {
+        console.error("Failed to search lessons in MongoDB:", error.name);
+        response.status(500).json({ error: "Unable to search lessons" });
+    }
+});
+
 app.post("/orders", async function(request, response) {
     const order = request.body;
     if (
@@ -54,7 +119,9 @@ app.post("/orders", async function(request, response) {
         order.lessonSlots.length === 0 ||
         !order.lessonSlots.every(function(id) {
             return typeof id === "string";
-        })
+        }) ||
+        !Number.isInteger(order.spaces) ||
+        order.spaces !== order.lessonSlots.length
     ) {
         return response.status(400).json({ error: "Invalid order details" });
     }
