@@ -1,80 +1,246 @@
 {
   "info": {
-    "name": "After-School Lessons API (M01027489)",
-    "description": "Requests for the CST3144 Express.js REST API. Set the lessonId and teacherId variables to real _id values from GET /lessons and GET /teachers.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "b2e745d3-9fc8-4508-ad43-1fa59181b1c5",
+    "name": "After School Lessons API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "60399125",
+    "_collection_link": "https://go.postman.co/collection/60399125-b2e745d3-9fc8-4508-ad43-1fa59181b1c5?source=collection_link"
   },
-  "variable": [
-    { "key": "baseUrl", "value": "https://backend-m01027489.onrender.com" },
-    { "key": "lessonId", "value": "PASTE_A_LESSON_ID_HERE" },
-    { "key": "teacherId", "value": "PASTE_A_TEACHER_ID_HERE" }
-  ],
   "item": [
     {
-      "name": "GET all lessons",
+      "name": "Get all Lessons",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Returns 10 lessons\", function () {\r\n    pm.expect(pm.response.json().length).to.equal(10);\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/lessons"
-      }
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/lessons",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "lessons"
+          ]
+        }
+      },
+      "response": []
     },
     {
-      "name": "POST new order",
+      "name": "post new order",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Order acknowledged\", function () {\r\n    pm.expect(pm.response.json().acknowledged).to.equal(true);\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"John Smith\",\n  \"telephone\": \"07123456789\",\n  \"lessonSlots\": [\"{{lessonId}}\", \"{{lessonId}}\"],\n  \"spaces\": 2\n}"
+          "raw": "{\r\n    \"name\": \"Penelope Pacman\",\r\n    \"telephone\": \"01234555555\",\r\n    \"lessonSlots\": [\"{{lesson_id}}\", \"{{lesson_id}}\"],\r\n    \"spaces\": 2\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
-        "url": "{{baseUrl}}/orders"
-      }
+        "url": {
+          "raw": "{{base_url}}/orders",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      },
+      "response": []
     },
     {
-      "name": "PUT update lesson",
+      "name": "put update lessons",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"One lesson was updated\", function () {\r\n    pm.expect(pm.response.json().matchedCount).to.equal(1);\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "PUT",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"spaces\": 5\n}"
+          "raw": "{\r\n    \"spaces\": 5\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
-        "url": "{{baseUrl}}/lessons/{{lessonId}}"
-      }
+        "url": {
+          "raw": "{{base_url}}/lessons/{{lesson_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "lessons",
+            "{{lesson_id}}"
+          ]
+        }
+      },
+      "response": []
     },
     {
-      "name": "GET search lessons",
+      "name": "get all teachers",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Every teacher has a first name, last name and lessons\", function () {\r\n    pm.response.json().forEach(function (teacher) {\r\n        pm.expect(teacher).to.have.property(\"firstName\");\r\n        pm.expect(teacher).to.have.property(\"lastName\");\r\n        pm.expect(teacher.lessonIds.length).to.be.above(0);\r\n    });\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/lessons/search?q=art"
-      }
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/teachers",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "teachers"
+          ]
+        }
+      },
+      "response": []
     },
     {
-      "name": "GET all teachers",
+      "name": "get teacher lessons",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Teacher has at least one lesson\", function () {\r\n    pm.expect(pm.response.json().length).to.be.above(0);\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/teachers"
-      }
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/teachers/{{teacher_id}}/lessons",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "teachers",
+            "{{teacher_id}}",
+            "lessons"
+          ]
+        }
+      },
+      "response": []
     },
     {
-      "name": "GET lessons of a teacher",
+      "name": "get search",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Every result contains 'art'\", function () {\r\n    pm.response.json().forEach(function (lesson) {\r\n        const text = [lesson.subject, lesson.location, lesson.price, lesson.spaces, lesson.tutor]\r\n            .join(\" \").toLowerCase();\r\n        pm.expect(text).to.include(\"art\");\r\n    });\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/teachers/{{teacherId}}/lessons"
-      }
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/lessons/search?q=art",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "lessons",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "art"
+            }
+          ]
+        }
+      },
+      "response": []
     },
     {
-      "name": "GET enrolment of a lesson",
+      "name": "get enrolment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Enrolment is a number\", function () {\r\n    pm.expect(pm.response.json().enrolment).to.be.a(\"number\");\r\n});"
+            ]
+          }
+        }
+      ],
       "request": {
         "method": "GET",
-        "url": "{{baseUrl}}/enrolment/{{lessonId}}"
-      }
-    },
-    {
-      "name": "GET missing image (404 test)",
-      "request": {
-        "method": "GET",
-        "url": "{{baseUrl}}/images/does-not-exist.jpg"
-      }
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/enrolment/{{lesson_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "enrolment",
+            "{{lesson_id}}"
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }
