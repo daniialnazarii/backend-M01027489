@@ -1,0 +1,80 @@
+{
+  "info": {
+    "name": "After-School Lessons API (M01027489)",
+    "description": "Requests for the CST3144 Express.js REST API. Set the lessonId and teacherId variables to real _id values from GET /lessons and GET /teachers.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://backend-m01027489.onrender.com" },
+    { "key": "lessonId", "value": "PASTE_A_LESSON_ID_HERE" },
+    { "key": "teacherId", "value": "PASTE_A_TEACHER_ID_HERE" }
+  ],
+  "item": [
+    {
+      "name": "GET all lessons",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lessons"
+      }
+    },
+    {
+      "name": "POST new order",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Smith\",\n  \"telephone\": \"07123456789\",\n  \"lessonSlots\": [\"{{lessonId}}\", \"{{lessonId}}\"],\n  \"spaces\": 2\n}"
+        },
+        "url": "{{baseUrl}}/orders"
+      }
+    },
+    {
+      "name": "PUT update lesson",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"spaces\": 5\n}"
+        },
+        "url": "{{baseUrl}}/lessons/{{lessonId}}"
+      }
+    },
+    {
+      "name": "GET search lessons",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/lessons/search?q=art"
+      }
+    },
+    {
+      "name": "GET all teachers",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/teachers"
+      }
+    },
+    {
+      "name": "GET lessons of a teacher",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/teachers/{{teacherId}}/lessons"
+      }
+    },
+    {
+      "name": "GET enrolment of a lesson",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/enrolment/{{lessonId}}"
+      }
+    },
+    {
+      "name": "GET missing image (404 test)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/images/does-not-exist.jpg"
+      }
+    }
+  ]
+}

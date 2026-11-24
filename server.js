@@ -59,26 +59,7 @@ app.get("/lessons/search", async function(request, response) {
     }
 
     const searchPattern = escapeRegExp(searchTerm.trim());
-    const searchableFields = [
-        "title",
-        "subject",
-        "location",
-        "price",
-        "spaces",
-        "availability",
-        "tutor",
-        "tutorName",
-        "tutorFirstName",
-        "tutorLastName",
-        "tutor.firstName",
-        "tutor.lastName",
-        "teacher",
-        "teacherName",
-        "teacherFirstName",
-        "teacherLastName",
-        "teacher.firstName",
-        "teacher.lastName"
-    ];
+    const searchableFields = ["subject", "location", "price", "spaces", "tutor"];
     const filter = {
         $or: searchableFields.map(function(field) {
             return {
@@ -176,6 +157,81 @@ app.put("/lessons/:_id", async function(request, response) {
     } catch (error) {
         console.error("Failed to update lesson:", error.name);
         response.status(500).json({ error: "Unable to update lesson" });
+    }
+});
+
+// Challenge: Teachers
+// Returns every teacher (firstName, lastName and the IDs of the lessons they teach).
+app.get("/teachers", async function(request, response) {
+    try {
+        const teachers = await db.collection("teachers").find({}).toArray();
+        response.json(teachers);
+    } catch (error) {
+        console.error("Failed to read teachers:", error.name);
+        response.status(500).json({ error: "Unable to load teachers" });
+    }
+});
+
+// Returns all the lessons taught by one teacher.
+app.get("/teachers/:id/lessons", async function(request, response) {
+    const teacherId = request.params.id;
+    if (!ObjectId.isValid(teacherId)) {
+        return response.status(400).json({ error: "Invalid teacher ID" });
+    }
+
+    try {
+        const teacher = await db.collection("teachers").findOne({ _id: new ObjectId(teacherId) });
+        if (!teacher) {
+            return response.status(404).json({ error: "Teacher not found" });
+        }
+
+        // lessonIds holds the _id of every lesson this teacher teaches.
+        const lessons = await db.collection("lessons")
+            .find({ _id: { $in: teacher.lessonIds } })
+            .toArray();
+        response.json(lessons);
+    } catch (error) {
+        console.error("Failed to read teacher lessons:", error.name);
+        response.status(500).json({ error: "Unable to load teacher lessons" });
+    }
+});
+
+// Challenge: Enrolment
+// Returns how many slots of one lesson have already been bought in orders.
+app.get("/enrolment/:lessonid", async function(request, response) {
+    const lessonId = request.params.lessonid;
+    if (!ObjectId.isValid(lessonId)) {
+        return response.status(400).json({ error: "Invalid lesson ID" });
+    }
+
+    try {
+        const lesson = await db.collection("lessons").findOne({ _id: new ObjectId(lessonId) });
+        if (!lesson) {
+            return response.status(404).json({ error: "Lesson not found" });
+        }
+
+        // An order's lessonSlots has one lesson _id per space bought, e.g. ["<id>", "<id>", "<other id>"].
+        const orders = await db.collection("orders")
+            .find({ lessonSlots: lessonId })
+            .toArray();
+
+        let enrolment = 0;
+        for (const order of orders) {
+            for (const slot of order.lessonSlots) {
+                if (slot === lessonId) {
+                    enrolment++;
+                }
+            }
+        }
+
+        response.json({
+            lessonId: lesson._id,
+            subject: lesson.subject,
+            enrolment: enrolment
+        });
+    } catch (error) {
+        console.error("Failed to calculate enrolment:", error.name);
+        response.status(500).json({ error: "Unable to calculate enrolment" });
     }
 });
 
